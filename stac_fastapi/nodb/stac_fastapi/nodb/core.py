@@ -91,10 +91,11 @@ class CoreCrudClient(BaseCoreClient):
 
         raise NotFoundError(f"Collection {collection_id} not found")
 
-    # def item_collection(
-    #     self, collection_id: str, limit: int = 10, **kwargs
-    # ) -> ItemCollection:
-    #     """Read an item collection from the database."""
+    def item_collection(
+        self, collection_id: str, limit: int = 10, **kwargs
+    ) -> ItemCollection:
+        """Read an item collection from the database."""
+        pass
     #     links = []
     #     base_url = str(kwargs["request"].base_url)
     #     search = Search(using=self.client, index="stac_items")
@@ -131,8 +132,9 @@ class CoreCrudClient(BaseCoreClient):
     #         context=context_obj,
     #     )
 
-    # def get_item(self, item_id: str, collection_id: str, **kwargs) -> Item:
-    #     """Get item by item id, collection id."""
+    def get_item(self, item_id: str, collection_id: str, **kwargs) -> Item:
+        """Get item by item id, collection id."""
+        pass
     #     base_url = str(kwargs["request"].base_url)
     #     try:
     #         item = self.client.get(index="stac_items", id=item_id)
@@ -165,20 +167,21 @@ class CoreCrudClient(BaseCoreClient):
 
     #         return {"lte": end_date, "gte": start_date}
 
-    # def get_search(
-    #     self,
-    #     collections: Optional[List[str]] = None,
-    #     ids: Optional[List[str]] = None,
-    #     bbox: Optional[List[NumType]] = None,
-    #     datetime: Optional[Union[str, datetime]] = None,
-    #     limit: Optional[int] = 10,
-    #     query: Optional[str] = None,
-    #     token: Optional[str] = None,
-    #     fields: Optional[List[str]] = None,
-    #     sortby: Optional[str] = None,
-    #     **kwargs,
-    # ) -> ItemCollection:
-    #     """GET search catalog."""
+    def get_search(
+        self,
+        collections: Optional[List[str]] = None,
+        ids: Optional[List[str]] = None,
+        bbox: Optional[List[NumType]] = None,
+        datetime: Optional[Union[str, datetime]] = None,
+        limit: Optional[int] = 10,
+        query: Optional[str] = None,
+        token: Optional[str] = None,
+        fields: Optional[List[str]] = None,
+        sortby: Optional[str] = None,
+        **kwargs,
+    ) -> ItemCollection:
+        """GET search catalog."""
+        pass
     #     base_args = {
     #         "collections": collections,
     #         "ids": ids,
@@ -227,10 +230,11 @@ class CoreCrudClient(BaseCoreClient):
     #     poly = [[[b0, b1], [b2, b1], [b2, b3], [b0, b3], [b0, b1]]]
     #     return poly
 
-    # def post_search(
-    #     self, search_request: BaseSearchPostRequest, **kwargs
-    # ) -> ItemCollection:
-    #     """POST search catalog."""
+    def post_search(
+        self, search_request: BaseSearchPostRequest, **kwargs
+    ) -> ItemCollection:
+        """POST search catalog."""
+        pass
     #     base_url = str(kwargs["request"].base_url)
     #     search = Search(using=self.client, index="stac_items")
 

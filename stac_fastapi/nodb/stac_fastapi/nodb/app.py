@@ -3,10 +3,9 @@ from stac_fastapi.api.app import StacApi
 from stac_fastapi.api.models import create_get_request_model, create_post_request_model
 from stac_fastapi.nodb.config import NoDBSettings
 from stac_fastapi.nodb.core import CoreCrudClient
-from stac_fastapi.nodb.extensions import QueryExtension
 from stac_fastapi.nodb.session import Session
 from stac_fastapi.nodb.transactions import (
-    BulkTransactionsClient,
+    # BulkTransactionsClient,
     TransactionsClient,
 )
 from stac_fastapi.extensions.core import (
@@ -16,16 +15,15 @@ from stac_fastapi.extensions.core import (
     TokenPaginationExtension,
     TransactionExtension,
 )
-from stac_fastapi.extensions.third_party import BulkTransactionExtension
+# from stac_fastapi.extensions.third_party import BulkTransactionExtension
 
 settings = NoDBSettings()
 session = Session.create_from_settings(settings)
 
 extensions = [
     TransactionExtension(client=TransactionsClient(session=session), settings=settings),
-    BulkTransactionExtension(client=BulkTransactionsClient(session=session)),
+    # BulkTransactionExtension(client=BulkTransactionsClient(session=session)),
     FieldsExtension(),
-    QueryExtension(),
     SortExtension(),
     TokenPaginationExtension(),
     ContextExtension(),
