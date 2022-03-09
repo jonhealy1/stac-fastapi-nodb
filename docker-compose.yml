@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  app-nodb:
+    container_name: stac-fastapi-nodb
+    image: stac-utils/stac-fastapi-nodb
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8083
+      - RELOAD=false
+      - ENVIRONMENT=local
+      - WEB_CONCURRENCY=10
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./stac_fastapi:/app/stac_fastapi
+      - ./scripts:/app/scripts
+    command:
+      python -m stac_fastapi.nodb.app"
+
+networks:
+  default:
+    name: stac-fastapi-nodb-network
