@@ -16,17 +16,17 @@ from stac_pydantic.shared import MimeTypes
 from stac_fastapi.nodb import serializers
 from stac_fastapi.nodb.config import NoDBSettings
 from stac_fastapi.nodb.session import Session
+from stac_fastapi.nodb.transactions import COLLECTIONS
 
 from stac_fastapi.types.core import BaseCoreClient
 from stac_fastapi.types.errors import NotFoundError
 from stac_fastapi.types.search import BaseSearchPostRequest
 from stac_fastapi.types.stac import Collection, Collections, Item, ItemCollection
+from stac_fastapi.nodb.transactions import COLLECTIONS
 
 logger = logging.getLogger(__name__)
 
 NumType = Union[float, int]
-
-COLLECTIONS = []
 
 
 @attr.s
