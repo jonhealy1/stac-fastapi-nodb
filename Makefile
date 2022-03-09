@@ -48,6 +48,6 @@ install: pybase-install
 # 	docker-compose -f docker-compose.docs.yml \
 # 		run docs
 
-# .PHONY: ingest
-# ingest:
-# 	python3 data_loader/data_loader.py
+.PHONY: ingest
+ingest:
+	python3 data_loader/data_loader.py

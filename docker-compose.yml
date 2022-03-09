@@ -21,7 +21,7 @@ services:
       - ./stac_fastapi:/app/stac_fastapi
       - ./scripts:/app/scripts
     command:
-      python -m stac_fastapi.nodb.app"
+      python -m stac_fastapi.nodb.app
 
 networks:
   default:
