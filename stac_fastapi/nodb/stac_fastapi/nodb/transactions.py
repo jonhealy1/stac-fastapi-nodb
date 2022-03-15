@@ -1,12 +1,14 @@
 """transactions extension client."""
 
 import logging
+import asyncio
+import json
 from datetime import datetime
 
 import attr
 from stac_pydantic.shared import DATETIME_RFC339
 
-from stac_fastapi.nodb.config import NoDBSettings
+from stac_fastapi.nodb.config import Tile38Settings
 from stac_fastapi.nodb.serializers import CollectionSerializer, ItemSerializer
 from stac_fastapi.nodb.session import Session
 from stac_fastapi.extensions.third_party.bulk_transactions import (
@@ -27,7 +29,7 @@ class TransactionsClient(BaseTransactionsClient):
     """Transactions extension specific CRUD operations."""
 
     session: Session = attr.ib(default=attr.Factory(Session.create_from_env))
-    settings = NoDBSettings()
+    settings = Tile38Settings()
     client = settings.create_client
 
     def create_item(self, model: stac_types.Item, **kwargs):
@@ -64,6 +66,13 @@ class TransactionsClient(BaseTransactionsClient):
     #     )
     #     return ItemSerializer.db_to_stac(model, base_url)
 
+    async def jset_collection(self, model: stac_types.Collection):
+        # await self.client.jset('collections', 1, 'id', 'model["id')
+        # return self.client.jget('collections', 1)
+
+        self.client.set('user', 902).object(model).exec()
+        return await self.client.get('user', 902).asStringObject()
+
     def create_collection(self, model: stac_types.Collection, **kwargs):
         """Create collection."""
         base_url = str(kwargs["request"].base_url)
@@ -72,12 +81,18 @@ class TransactionsClient(BaseTransactionsClient):
         ).create_links()
         model["links"] = collection_links
 
-        for collection in COLLECTIONS:
-            if collection["id"] == model["id"]:
-                raise ConflictError(f"Collection {model['id']} already exists")
+        # for collection in COLLECTIONS:
+        #     if collection["id"] == model["id"]:
+        #         raise ConflictError(f"Collection {model['id']} already exists")
       
-        COLLECTIONS.append(model)
-        return CollectionSerializer.db_to_stac(model, base_url)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        # loop = asyncio.get_event_loop()
+        coroutine = self.jset_collection(model)
+        response = loop.run_until_complete(coroutine)
+        return str(response)
+
+        # return CollectionSerializer.db_to_stac(collection, base_url)
 
     def update_item(self, model: stac_types.Item, **kwargs):
         """Update item."""
