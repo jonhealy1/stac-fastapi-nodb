@@ -4,6 +4,9 @@ import logging
 import asyncio
 import json
 from datetime import datetime
+import redis
+from redis.commands.json.path import Path
+
 
 import attr
 from stac_pydantic.shared import DATETIME_RFC339
@@ -30,7 +33,8 @@ class TransactionsClient(BaseTransactionsClient):
 
     session: Session = attr.ib(default=attr.Factory(Session.create_from_env))
     settings = Tile38Settings()
-    client = settings.create_client
+    client = settings.create_tile_38_client
+    redis_client = settings.create_redis_client
 
     def create_item(self, model: stac_types.Item, **kwargs):
         """Create item."""
@@ -66,12 +70,17 @@ class TransactionsClient(BaseTransactionsClient):
     #     )
     #     return ItemSerializer.db_to_stac(model, base_url)
 
+    # async example for tile38 client
     async def jset_collection(self, model: stac_types.Collection):
         # await self.client.jset('collections', 1, 'id', 'model["id')
         # return self.client.jget('collections', 1)
 
-        self.client.set('user', 902).object(model).exec()
-        return await self.client.get('user', 902).asStringObject()
+        # self.client.set('user', 902).object(model).exec()
+        # return await self.client.get('user', 902).asStringObject()
+
+        await self.redis_client.execute_command('SET', 'hello', 'world')
+
+        return await self.redis_client.execute_command('GET', 'hello')
 
     def create_collection(self, model: stac_types.Collection, **kwargs):
         """Create collection."""
@@ -85,14 +94,17 @@ class TransactionsClient(BaseTransactionsClient):
         #     if collection["id"] == model["id"]:
         #         raise ConflictError(f"Collection {model['id']} already exists")
       
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        # loop = asyncio.get_event_loop()
-        coroutine = self.jset_collection(model)
-        response = loop.run_until_complete(coroutine)
-        return str(response)
+        ### tile 38
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # coroutine = self.jset_collection(model)
+        # response = loop.run_until_complete(coroutine)
+        # return str(response)
 
-        # return CollectionSerializer.db_to_stac(collection, base_url)
+        self.redis_client.json().set(model["id"], Path.rootPath(), model)
+
+        collection = self.redis_client.json().get(model["id"])
+        return CollectionSerializer.db_to_stac(collection, base_url)
 
     def update_item(self, model: stac_types.Item, **kwargs):
         """Update item."""
