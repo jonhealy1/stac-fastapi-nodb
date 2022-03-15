@@ -72,6 +72,14 @@ class TransactionsClient(BaseTransactionsClient):
 
     # async example for tile38 client
     async def jset_collection(self, model: stac_types.Collection):
+        ### tile 38 def function
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # coroutine = self.jset_collection(model)
+        # response = loop.run_until_complete(coroutine)
+        # return str(response)
+
+        ### here in async def
         # await self.client.jset('collections', 1, 'id', 'model["id')
         # return self.client.jget('collections', 1)
 
@@ -90,16 +98,8 @@ class TransactionsClient(BaseTransactionsClient):
         ).create_links()
         model["links"] = collection_links
 
-        # for collection in COLLECTIONS:
-        #     if collection["id"] == model["id"]:
-        #         raise ConflictError(f"Collection {model['id']} already exists")
-      
-        ### tile 38
-        # loop = asyncio.new_event_loop()
-        # asyncio.set_event_loop(loop)
-        # coroutine = self.jset_collection(model)
-        # response = loop.run_until_complete(coroutine)
-        # return str(response)
+        if self.redis_client.json().get(model["id"]):
+            raise ConflictError(f"Collection {model['id']} already exists")
 
         self.redis_client.json().set(model["id"], Path.rootPath(), model)
 
