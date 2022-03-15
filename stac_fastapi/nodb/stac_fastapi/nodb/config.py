@@ -4,11 +4,13 @@ from typing import Set
 
 from stac_fastapi.types.config import ApiSettings
 
-DOMAIN = os.getenv("ES_HOST")
-PORT = os.getenv("ES_PORT")
+from pyle38 import Tile38
+
+DOMAIN = os.getenv("38_HOST")
+PORT = os.getenv("38_PORT")
 
 
-class NoDBSettings(ApiSettings):
+class Tile38Settings(ApiSettings):
     """API settings."""
 
     # Fields which are defined by STAC but not included in the database model
@@ -19,5 +21,7 @@ class NoDBSettings(ApiSettings):
 
     @property
     def create_client(self):
-        """Create nodb client - not applicable."""
-        pass
+        """Create tile38 client."""
+        # try:
+        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url="redis://{str(DOMAIN)}:{str(PORT)}")
+        return client
