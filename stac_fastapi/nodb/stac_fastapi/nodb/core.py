@@ -141,15 +141,12 @@ class CoreCrudClient(BaseCoreClient):
 
     def get_item(self, item_id: str, collection_id: str, **kwargs) -> Item:
         """Get item by item id, collection id."""
-        pass
-    #     base_url = str(kwargs["request"].base_url)
-    #     try:
-    #         item = self.client.get(index="stac_items", id=item_id)
-    #     except elasticsearch.exceptions.NotFoundError:
-    #         raise NotFoundError(
-    #             f"Item {item_id} does not exist in Collection {collection_id}"
-    #         )
-    #     return self.item_serializer.db_to_stac(item["_source"], base_url)
+        base_url = str(kwargs["request"].base_url)
+        item = self.redis_client.json().get(item_id)
+        if item:
+            return self.item_serializer.db_to_stac(item, base_url)
+        else:
+            raise NotFoundError(f"Item {item_id} does not exist in Collection {collection_id}")
 
     # def _return_date(self, datetime):
     #     datetime = datetime.split("/")
