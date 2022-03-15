@@ -14,7 +14,7 @@ from stac_pydantic.links import Relations
 from stac_pydantic.shared import MimeTypes
 
 from stac_fastapi.nodb import serializers
-from stac_fastapi.nodb.config import NoDBSettings
+from stac_fastapi.nodb.config import Tile38Settings
 from stac_fastapi.nodb.session import Session
 from stac_fastapi.nodb.transactions import COLLECTIONS
 
@@ -40,7 +40,7 @@ class CoreCrudClient(BaseCoreClient):
     collection_serializer: Type[serializers.Serializer] = attr.ib(
         default=serializers.CollectionSerializer
     )
-    settings = NoDBSettings()
+    settings = Tile38Settings()
     client = settings.create_client
 
     @staticmethod

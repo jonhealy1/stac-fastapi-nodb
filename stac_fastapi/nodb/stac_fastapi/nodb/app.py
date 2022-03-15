@@ -1,7 +1,7 @@
 """FastAPI application."""
 from stac_fastapi.api.app import StacApi
 from stac_fastapi.api.models import create_get_request_model, create_post_request_model
-from stac_fastapi.nodb.config import NoDBSettings
+from stac_fastapi.nodb.config import Tile38Settings
 from stac_fastapi.nodb.core import CoreCrudClient
 from stac_fastapi.nodb.session import Session
 from stac_fastapi.nodb.transactions import (
@@ -17,7 +17,7 @@ from stac_fastapi.extensions.core import (
 )
 # from stac_fastapi.extensions.third_party import BulkTransactionExtension
 
-settings = NoDBSettings()
+settings = Tile38Settings()
 session = Session.create_from_settings(settings)
 
 extensions = [
