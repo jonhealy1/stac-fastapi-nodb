@@ -52,14 +52,19 @@ class CoreCrudClient(BaseCoreClient):
     def all_collections(self, **kwargs) -> Collections:
         """Read all collections from the database."""
         base_url = str(kwargs["request"].base_url)
+        collections = []
+        collection_ids = self.redis_client.smembers("collections")
 
-        if len(COLLECTIONS) == 0:
+        for collection in collection_ids:
+            collections.append(self.redis_client.json().get(collection))
+
+        if len(collections) == 0:
             raise NotFoundError("No collections exist")
         serialized_collections = [
             self.collection_serializer.db_to_stac(
                 collection, base_url=base_url
             )
-            for collection in COLLECTIONS
+            for collection in collections
         ]
         links = [
             {
