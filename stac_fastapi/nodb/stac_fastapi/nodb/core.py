@@ -41,7 +41,7 @@ class CoreCrudClient(BaseCoreClient):
         default=serializers.CollectionSerializer
     )
     settings = Tile38Settings()
-    client = settings.create_client
+    client = settings.create_tile_38_client
 
     @staticmethod
     def _lookup_id(id: str, table, session):

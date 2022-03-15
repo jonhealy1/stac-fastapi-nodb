@@ -5,9 +5,12 @@ from typing import Set
 from stac_fastapi.types.config import ApiSettings
 
 from pyle38 import Tile38
+import redis
 
 DOMAIN = os.getenv("38_HOST")
 PORT = os.getenv("38_PORT")
+REDIS_DOMAIN = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
 
 
 class Tile38Settings(ApiSettings):
@@ -20,8 +23,16 @@ class Tile38Settings(ApiSettings):
     indexed_fields: Set[str] = {"datetime"}
 
     @property
-    def create_client(self):
+    def create_tile_38_client(self):
         """Create tile38 client."""
         # try:
         client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url="redis://{str(DOMAIN)}:{str(PORT)}")
+        return client
+
+    @property
+    def create_redis_client(self):
+        """Create tile38 client."""
+        # try:
+        client = redis.Redis(host=f'{str(REDIS_DOMAIN)}', port=REDIS_PORT, db=0)
+        
         return client

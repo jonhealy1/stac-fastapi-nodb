@@ -16,6 +16,7 @@ install_requires = [
     "pystac[validation]",
     "uvicorn",
     "pyle38",
+    "redis",
 ]
 
 extra_reqs = {
