@@ -102,6 +102,7 @@ class TransactionsClient(BaseTransactionsClient):
             raise ConflictError(f"Collection {model['id']} already exists")
 
         self.redis_client.json().set(model["id"], Path.rootPath(), model)
+        self.redis_client.sadd("collections", model["id"])
 
         collection = self.redis_client.json().get(model["id"])
         return CollectionSerializer.db_to_stac(collection, base_url)
