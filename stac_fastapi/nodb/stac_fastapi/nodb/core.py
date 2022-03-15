@@ -42,6 +42,7 @@ class CoreCrudClient(BaseCoreClient):
     )
     settings = Tile38Settings()
     client = settings.create_tile_38_client
+    redis_client = settings.create_redis_client
 
     @staticmethod
     def _lookup_id(id: str, table, session):
@@ -85,11 +86,12 @@ class CoreCrudClient(BaseCoreClient):
     def get_collection(self, collection_id: str, **kwargs) -> Collection:
         """Get collection by id."""
         base_url = str(kwargs["request"].base_url)
-        for collection in COLLECTIONS:
-            if collection["id"] == collection_id:
-                return self.collection_serializer.db_to_stac(collection, base_url)
 
-        raise NotFoundError(f"Collection {collection_id} not found")
+        collection = self.redis_client.json().get(collection_id)
+        if collection:
+            return self.collection_serializer.db_to_stac(collection, base_url)
+        else:
+            raise NotFoundError(f"Collection {collection_id} not found")
 
     def item_collection(
         self, collection_id: str, limit: int = 10, **kwargs
