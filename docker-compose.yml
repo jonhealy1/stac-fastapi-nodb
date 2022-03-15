@@ -20,8 +20,15 @@ services:
     volumes:
       - ./stac_fastapi:/app/stac_fastapi
       - ./scripts:/app/scripts
+    depends_on:
+      - tile38
     command:
-      python -m stac_fastapi.nodb.app
+      bash -c "./scripts/wait-for-it-es.sh tile38:9851 && python -m stac_fastapi.nodb.app"
+
+  tile38:
+    image: "tile38/tile38"
+    ports:
+     - "9851:9851"
 
 networks:
   default:
