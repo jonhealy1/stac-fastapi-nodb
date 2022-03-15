@@ -38,10 +38,9 @@ class TransactionsClient(BaseTransactionsClient):
 
     def create_item(self, model: stac_types.Item, **kwargs):
         """Create item."""
-        pass
-    #     base_url = str(kwargs["request"].base_url)
-    #     self._create_item_index()
+        base_url = str(kwargs["request"].base_url)
 
+    ##### implement after bulk syync post request
     #     # If a feature collection is posted
     #     if model["type"] == "FeatureCollection":
     #         bulk_client = BulkTransactionsClient()
@@ -54,21 +53,19 @@ class TransactionsClient(BaseTransactionsClient):
 
     #         return return_msg
 
-    #     # If a single item is posted
-    #     if not self.client.exists(index="stac_collections", id=model["collection"]):
-    #         raise ForeignKeyError(f"Collection {model['collection']} does not exist")
+        # If a single item is posted
+        if not self.redis_client.json().get(model["collection"]):
+            raise ForeignKeyError(f"Collection {model['collection']} does not exist")
 
-    #     if self.client.exists(index="stac_items", id=model["id"]):
-    #         raise ConflictError(
-    #             f"Item {model['id']} in collection {model['collection']} already exists"
-    #         )
+        if self.redis_client.json().get(model["id"]):
+            raise ConflictError(
+                f"Item {model['id']} in collection {model['collection']} already exists"
+            )
 
-    #     data = ItemSerializer.stac_to_db(model, base_url)
+        data = ItemSerializer.stac_to_db(model, base_url)
 
-    #     self.client.index(
-    #         index="stac_items", doc_type="_doc", id=model["id"], document=data
-    #     )
-    #     return ItemSerializer.db_to_stac(model, base_url)
+        self.redis_client.json().set(model["id"], Path.rootPath(), data)
+        return ItemSerializer.db_to_stac(data, base_url)
 
     # async example for tile38 client
     async def jset_collection(self, model: stac_types.Collection):
