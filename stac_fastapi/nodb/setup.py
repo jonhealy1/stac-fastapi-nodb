@@ -15,6 +15,7 @@ install_requires = [
     "fastapi-utils",
     "pystac[validation]",
     "uvicorn",
+    "pyle38",
 ]
 
 extra_reqs = {
