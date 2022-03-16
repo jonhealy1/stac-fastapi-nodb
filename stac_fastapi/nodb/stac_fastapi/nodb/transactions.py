@@ -148,7 +148,7 @@ class TransactionsClient(BaseTransactionsClient):
         """Delete collection."""
         self.check_collection_not_found(collection_id)
         self.redis_client.json().delete(collection_id, Path.rootPath())
-        self.redis_client.srem("collections", collection_id
+        self.redis_client.srem("collections", collection_id)
 
 
 # @attr.s
