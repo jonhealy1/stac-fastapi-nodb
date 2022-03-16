@@ -108,6 +108,10 @@ class TransactionsClient(BaseTransactionsClient):
         if not self.redis_client.json().get(model["collection"]):
             raise ForeignKeyError(f"Collection {model['collection']} does not exist")
 
+    def check_collection_not_found(self, collection_id):
+        if not self.redis_client.json().get(collection_id):
+            raise NotFoundError(f"Collection {collection_id} not found")
+
     def check_item_not_exists(self, item_id, collection_id):
         if not self.redis_client.json().get(item_id):
             raise NotFoundError(
@@ -129,8 +133,7 @@ class TransactionsClient(BaseTransactionsClient):
     def update_collection(self, model: stac_types.Collection, **kwargs):
         """Update collection."""
         base_url = str(kwargs["request"].base_url)
-        if not self.redis_client.json().get(model["collection"]):
-            raise NotFoundError(f"Collection {model['collection']} not found")
+        self.check_collection_not_found(model["id"])
         self.delete_collection(model["id"])
         self.create_collection(model, **kwargs)
 
@@ -143,12 +146,9 @@ class TransactionsClient(BaseTransactionsClient):
 
     def delete_collection(self, collection_id: str, **kwargs):
         """Delete collection."""
-        pass
-#         try:
-#             _ = self.client.get(index="stac_collections", id=collection_id)
-#         except elasticsearch.exceptions.NotFoundError:
-#             raise NotFoundError(f"Collection {collection_id} not found")
-#         self.client.delete(index="stac_collections", doc_type="_doc", id=collection_id)
+        self.check_collection_not_found(collection_id)
+        self.redis_client.json().delete(collection_id, Path.rootPath())
+        self.redis_client.srem("collections", collection_id
 
 
 # @attr.s
