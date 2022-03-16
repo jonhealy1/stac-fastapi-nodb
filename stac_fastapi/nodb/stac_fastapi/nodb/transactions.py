@@ -122,22 +122,19 @@ class TransactionsClient(BaseTransactionsClient):
         self.check_collection_not_exists(item)
         self.check_item_not_exists(item["id"], item["collection"])
         self.delete_item(item["id"], item["collection"])
-        self.create_item(item)
+        self.create_item(item, **kwargs)
 
         return ItemSerializer.db_to_stac(item, base_url)
 
     def update_collection(self, model: stac_types.Collection, **kwargs):
         """Update collection."""
-        pass
-#         base_url = str(kwargs["request"].base_url)
-#         try:
-#             _ = self.client.get(index="stac_collections", id=model["id"])
-#         except elasticsearch.exceptions.NotFoundError:
-#             raise NotFoundError(f"Collection {model['id']} not found")
-#         self.delete_collection(model["id"])
-#         self.create_collection(model, **kwargs)
+        base_url = str(kwargs["request"].base_url)
+        if not self.redis_client.json().get(model["collection"]):
+            raise NotFoundError(f"Collection {model['collection']} not found")
+        self.delete_collection(model["id"])
+        self.create_collection(model, **kwargs)
 
-#         return CollectionSerializer.db_to_stac(model, base_url)
+        return CollectionSerializer.db_to_stac(model, base_url)
 
     def delete_item(self, item_id: str, collection_id: str, **kwargs):
         """Delete item."""
