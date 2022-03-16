@@ -33,14 +33,14 @@ class TransactionsClient(BaseTransactionsClient):
 
     session: Session = attr.ib(default=attr.Factory(Session.create_from_env))
     settings = Tile38Settings()
-    client = settings.create_tile_38_client
+    tile38_client = settings.create_tile_38_client
     redis_client = settings.create_redis_client
 
     def create_item(self, model: stac_types.Item, **kwargs):
         """Create item."""
         base_url = str(kwargs["request"].base_url)
 
-    ##### implement after bulk syync post request
+    ##### implement after bulk sync post request
     #     # If a feature collection is posted
     #     if model["type"] == "FeatureCollection":
     #         bulk_client = BulkTransactionsClient()
@@ -64,10 +64,17 @@ class TransactionsClient(BaseTransactionsClient):
         data = ItemSerializer.stac_to_db(model, base_url)
 
         self.redis_client.json().set(model["id"], Path.rootPath(), data)
+
+        ### run async code for tile38 client
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        coroutine = self.create_geojson_object(data)
+        loop.run_until_complete(coroutine)
+
         return ItemSerializer.db_to_stac(data, base_url)
 
     # async example for tile38 client
-    async def jset_collection(self, model: stac_types.Collection):
+    async def create_geojson_object(self, item: stac_types.Item):
         ### tile 38 def function
         # loop = asyncio.new_event_loop()
         # asyncio.set_event_loop(loop)
@@ -75,16 +82,10 @@ class TransactionsClient(BaseTransactionsClient):
         # response = loop.run_until_complete(coroutine)
         # return str(response)
 
-        ### here in async def
-        # await self.client.jset('collections', 1, 'id', 'model["id')
-        # return self.client.jget('collections', 1)
+        await self.tile38_client.set("items", item["id"]).object(item["geometry"]).exec()
+        # response = await self.tile38_client.get("items", item["id"]).asObject()
 
-        # self.client.set('user', 902).object(model).exec()
-        # return await self.client.get('user', 902).asStringObject()
-
-        await self.redis_client.execute_command('SET', 'hello', 'world')
-
-        return await self.redis_client.execute_command('GET', 'hello')
+        # return response.object
 
     def create_collection(self, model: stac_types.Collection, **kwargs):
         """Create collection."""
